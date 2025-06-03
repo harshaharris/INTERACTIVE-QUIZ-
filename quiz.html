@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Interactive Quiz App</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #e9eef5, #cfd8e6);
+      color: #2c3e50;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .quiz-container {
+      background: #ffffff;
+      padding: 40px;
+      border-radius: 16px;
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+      width: 100%;
+      max-width: 540px;
+    }
+
+    .quiz-container h2 {
+      margin-bottom: 24px;
+      font-size: 1.8rem;
+      color: #1a2e5c;
+    }
+
+    .option {
+      background: #f4f7fb;
+      margin: 12px 0;
+      padding: 14px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      border: 1px solid #d4dce9;
+      transition: all 0.25s ease;
+      font-size: 1rem;
+    }
+
+    .option:hover {
+      background: #e3ebf5;
+    }
+
+    .option.correct {
+      background: #d4f4dd;
+      border-color: #9ce3aa;
+    }
+
+    .option.wrong {
+      background: #fce4e4;
+      border-color: #f3a6a6;
+    }
+
+    .feedback {
+      margin-top: 12px;
+      font-weight: 600;
+      font-size: 1rem;
+    }
+
+    .btn {
+      background: #1e3a70;
+      color: #fff;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-top: 24px;
+      font-size: 1rem;
+      transition: background 0.3s ease;
+    }
+
+    .btn:hover {
+      background: #142c55;
+    }
+
+    .score {
+      font-size: 1.2rem;
+      color: #2d2d2d;
+      margin-top: 24px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="quiz-container">
+    <h2 id="question">Loading question...</h2>
+    <div id="options"></div>
+    <div class="feedback" id="feedback"></div>
+    <button class="btn" id="nextBtn" onclick="loadNextQuestion()" style="display: none;">Next</button>
+    <div class="score" id="scoreBox"></div>
+  </div>
+
+  <script>
+    const questions = [
+      {
+        question: "What does HTML stand for?",
+        options: ["Hyper Text Markup Language", "Hot Mail", "How To Make Links", "HighText Machine Language"],
+        correct: 0
+      },
+      {
+        question: "Which language is used for styling web pages?",
+        options: ["HTML", "jQuery", "CSS", "XML"],
+        correct: 2
+      },
+      {
+        question: "Which is not a JavaScript framework?",
+        options: ["React", "Angular", "Vue", "Django"],
+        correct: 3
+      },
+      {
+        question: "Inside which HTML element do we put the JavaScript?",
+        options: ["<js>", "<scripting>", "<script>", "<javascript>"],
+        correct: 2
+      },
+      {
+        question: "Which keyword is used to declare a variable in JavaScript?",
+        options: ["var", "dim", "int", "float"],
+        correct: 0
+      }
+    ];
+
+    let currentIndex = 0;
+    let score = 0;
+
+    function loadQuestion(index) {
+      const q = questions[index];
+      document.getElementById('question').textContent = q.question;
+
+      const optionsContainer = document.getElementById('options');
+      optionsContainer.innerHTML = '';
+
+      q.options.forEach((opt, i) => {
+        const div = document.createElement('div');
+        div.className = 'option';
+        div.textContent = opt;
+        div.onclick = () => checkAnswer(i);
+        optionsContainer.appendChild(div);
+      });
+
+      document.getElementById('feedback').textContent = '';
+      document.getElementById('nextBtn').style.display = 'none';
+    }
+
+    function checkAnswer(selected) {
+      const correct = questions[currentIndex].correct;
+      const options = document.querySelectorAll('.option');
+
+      options.forEach((opt, idx) => {
+        opt.classList.remove('correct', 'wrong');
+        opt.style.pointerEvents = 'none';
+
+        if (idx === correct) {
+          opt.classList.add('correct');
+        } else if (idx === selected) {
+          opt.classList.add('wrong');
+        }
+      });
+
+      const feedback = document.getElementById('feedback');
+      if (selected === correct) {
+        feedback.textContent = '✅ Correct!';
+        feedback.style.color = '#28a745';
+        score++;
+      } else {
+        feedback.textContent = '❌ Wrong!';
+        feedback.style.color = '#c0392b';
+      }
+
+      document.getElementById('nextBtn').style.display = 'inline-block';
+    }
+
+    function loadNextQuestion() {
+      currentIndex++;
+      if (currentIndex < questions.length) {
+        loadQuestion(currentIndex);
+      } else {
+        showFinalScore();
+      }
+    }
+
+    function showFinalScore() {
+      document.querySelector('.quiz-container').innerHTML = `
+        <h2>Quiz Completed 🎉</h2>
+        <div class="score">Your Score: ${score} / ${questions.length}</div>
+        <button class="btn" onclick="restartQuiz()">Restart Quiz</button>
+      `;
+    }
+
+    function restartQuiz() {
+      currentIndex = 0;
+      score = 0;
+      document.querySelector('.quiz-container').innerHTML = `
+        <h2 id="question">Loading question...</h2>
+        <div id="options"></div>
+        <div class="feedback" id="feedback"></div>
+        <button class="btn" id="nextBtn" onclick="loadNextQuestion()" style="display: none;">Next</button>
+        <div class="score" id="scoreBox"></div>
+      `;
+      loadQuestion(currentIndex);
+    }
+
+    loadQuestion(currentIndex);
+  </script>
+
+</body>
+</html>
